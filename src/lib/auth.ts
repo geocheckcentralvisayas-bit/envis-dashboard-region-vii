@@ -19,14 +19,28 @@ export interface Session {
 const SESSION_KEY = 'envis.session';
 const SESSION_TTL_MS = 8 * 60 * 60 * 1000;
 
-export const ACCOUNTS: Account[] = [
-  { username: 'extractor', role: 'extractor', displayName: 'Data Extractor', division: 'Data Extraction', passwordHash: 'efe8e36ec61c1df5ca983b7df13c503c102ada81574aef1d57abb2f2a8e71e5a' },
-  { username: 'rd.regional', role: 'rd', displayName: 'Regional Director', division: 'Office of the Regional Director', passwordHash: 'a406bce8e1daccd6c66dcff1f7ed68188c79d88e03e8b8079bae03bf3595fe07' },
-  { username: 'emed.enforce', role: 'emed', displayName: 'Environmental Monitoring & Enforcement Division', division: 'EMED', passwordHash: 'a0fe7872bdd76e1fd997002a7655ff1d6de9e34c0545fccd294afd4399007ec0' },
-  { username: 'cpd.permits', role: 'cpd', displayName: 'Clearance and Permitting Division', division: 'CPD', passwordHash: '61e1c46477800307d037dcf2b5395ea3de33dc75b6ef3f76cf79d95b7d754560' },
-  { username: 'mis.systems', role: 'mis', displayName: 'Management and Information System', division: 'MIS', passwordHash: 'dbcde5c816e50c0b1cdfb4da7654cbb1bedb6d54888ab03b541c353d7bec2f48' },
-  { username: 'gis.spatial', role: 'gis', displayName: 'GIS Unit', division: 'GIS / Spatial Data', passwordHash: '0786b228198bce0f95f62fd2aa013033ae32f6208f26ce3b892affa71b604870' },
-];
+/**
+ * Accounts are supplied at build time through the VITE_ACCOUNTS environment
+ * variable (a JSON array of Account objects). Keeping them out of source means
+ * no credentials or password hashes are committed to the repository.
+ *
+ * Example (local .env or a GitHub Actions secret):
+ *   VITE_ACCOUNTS=[{"username":"extractor","role":"extractor","displayName":"Data Extractor","division":"Data Extraction","passwordHash":"<sha256>"}]
+ *
+ * See .env.example for the full format.
+ */
+function loadAccounts(): Account[] {
+  const raw = (import.meta as { env?: Record<string, string> }).env?.VITE_ACCOUNTS;
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as Account[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+export const ACCOUNTS: Account[] = loadAccounts();
 
 export async function sha256(text: string): Promise<string> {
   const data = new TextEncoder().encode(text);
