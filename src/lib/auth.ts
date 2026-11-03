@@ -1,4 +1,4 @@
-export type Role = 'extractor' | 'rd' | 'emed' | 'cpd' | 'mis' | 'viewer';
+export type Role = 'extractor' | 'rd' | 'emed' | 'cpd' | 'mis' | 'viewer' | 'gis';
 
 export interface Account {
   username: string;
@@ -25,6 +25,7 @@ export const ACCOUNTS: Account[] = [
   { username: 'emed.enforce', role: 'emed', displayName: 'Environmental Monitoring & Enforcement Division', division: 'EMED', passwordHash: 'a0fe7872bdd76e1fd997002a7655ff1d6de9e34c0545fccd294afd4399007ec0' },
   { username: 'cpd.permits', role: 'cpd', displayName: 'Clearance and Permitting Division', division: 'CPD', passwordHash: '61e1c46477800307d037dcf2b5395ea3de33dc75b6ef3f76cf79d95b7d754560' },
   { username: 'mis.systems', role: 'mis', displayName: 'Management and Information System', division: 'MIS', passwordHash: 'dbcde5c816e50c0b1cdfb4da7654cbb1bedb6d54888ab03b541c353d7bec2f48' },
+  { username: 'gis.spatial', role: 'gis', displayName: 'GIS Unit', division: 'GIS / Spatial Data', passwordHash: '0786b228198bce0f95f62fd2aa013033ae32f6208f26ce3b892affa71b604870' },
 ];
 
 export async function sha256(text: string): Promise<string> {
@@ -71,4 +72,8 @@ export function logout(): void {
 
 export function canExport(session: Session | null): boolean {
   return session?.role === 'extractor' || session?.role === 'mis';
+}
+
+export function canDownloadGeoJson(session: Session | null): boolean {
+  return session?.role === 'gis';
 }
